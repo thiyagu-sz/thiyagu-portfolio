@@ -2,26 +2,87 @@
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
-@media (prefers-color-scheme: dark) {
+@layer base {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --nav-h: 72px;
   }
-}
 
-body {
-  color: var(--foreground);
-  background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
+  html {
+    scroll-behavior: smooth;
+    /* offset anchor jumps for the sticky navbar */
+    scroll-padding-top: var(--nav-h);
+  }
+
+  body {
+    @apply bg-bg text-fg font-sans antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    @apply font-display;
+    text-wrap: balance;
+  }
+
+  /* Visible, consistent focus ring for keyboard users */
+  :focus-visible {
+    @apply outline-none ring-2 ring-fg ring-offset-2 ring-offset-bg;
+  }
+
+  ::selection {
+    @apply bg-fg text-bg;
+  }
 }
 
 @layer utilities {
   .text-balance {
     text-wrap: balance;
   }
+  /* mask edges of marquee strips */
+  .mask-fade-x {
+    -webkit-mask-image: linear-gradient(
+      to right,
+      transparent,
+      #000 8%,
+      #000 92%,
+      transparent
+    );
+    mask-image: linear-gradient(
+      to right,
+      transparent,
+      #000 8%,
+      #000 92%,
+      transparent
+    );
+  }
+}
+
+/* Respect users who prefer reduced motion: kill animation + smooth scroll */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+}
+
+/* Hero smoke background — slow flowing grayscale wisps */
+@keyframes smoke1 {
+  0%, 100% { transform: translate(0, 0) rotate(-12deg) scale(1); }
+  50% { transform: translate(70px, -40px) rotate(-2deg) scale(1.18); }
+}
+@keyframes smoke2 {
+  0%, 100% { transform: translate(0, 0) rotate(10deg) scale(1.05); }
+  50% { transform: translate(-80px, 36px) rotate(22deg) scale(1.2); }
+}
+@keyframes smoke3 {
+  0%, 100% { transform: translate(0, 0) rotate(-6deg) scale(1); }
+  50% { transform: translate(50px, 44px) rotate(4deg) scale(1.22); }
 }

@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="750" viewBox="0 0 1000 750" role="img" aria-label="Feature image placeholder">
+  <rect width="1000" height="750" fill="#0D0D0D"/>
+  <rect x="14" y="14" width="972" height="722" rx="20" fill="none" stroke="#2A2A2A" stroke-width="2" stroke-dasharray="10 10"/>
+  <text x="500" y="368" text-anchor="middle" font-family="'Plus Jakarta Sans',Inter,sans-serif" font-size="48" font-weight="700" fill="#FFFFFF">Feature image</text>
+  <text x="500" y="416" text-anchor="middle" font-family="Inter,sans-serif" font-size="24" fill="#A3A3A3">placeholder — swap in /public/placeholders</text>
+</svg>
