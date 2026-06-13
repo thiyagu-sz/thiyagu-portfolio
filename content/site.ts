@@ -30,7 +30,7 @@ export const site = {
     { label: "GitHub", href: "https://github.com/thiyagu-sz" },
     {
       label: "LinkedIn",
-      href: "https://www.linkedin.com/in/thiyagu-ai-057441313/",
+      href: "https://www.linkedin.com/in/thiyaguai",
     },
     { label: "Instagram", href: "https://www.instagram.com/thiyagu_ig/" },
   ],

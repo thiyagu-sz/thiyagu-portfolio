@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Inter, Plus_Jakarta_Sans } from "next/font/google";
 import { Analytics } from "@vercel/analytics/next";
+import { JsonLd } from "@/components/JsonLd";
 import "./globals.css";
 
 const inter = Inter({
@@ -19,30 +20,57 @@ const display = Plus_Jakarta_Sans({
 export const metadata: Metadata = {
   metadataBase: new URL("https://thiyagu-portfolio.me"),
   title: {
-    default: "Thiyagu — AI-Enabled Developer & Full-Stack Engineer",
+    default: "Thiyagu — AI Engineer & Full-Stack SaaS Builder",
     template: "%s · Thiyagu",
   },
   description:
-    "Thiyagu is an AI-enabled developer pursuing a Master's in AI at VIT Vellore — building SaaS web apps, AI/ML systems, and client websites end to end.",
+    "AI engineer (MSc AI @ VIT Vellore) shipping production SaaS and AI/ML systems — LLMs, RAG, and computer vision. Built QuickNotes to 40,000+ visits, bootstrapped.",
   keywords: [
     "Thiyagu",
-    "AI Developer",
+    "AI Engineer",
     "Full-Stack Developer",
-    "SaaS",
+    "LLM developer",
+    "RAG pipelines",
+    "Computer Vision",
     "React",
+    "Next.js",
+    "SaaS",
     "Supabase",
-    "Machine Learning",
     "n8n",
     "VIT Vellore",
   ],
+  authors: [{ name: "Thiyagu", url: "https://thiyagu-portfolio.me" }],
+  creator: "Thiyagu",
+  applicationName: "Thiyagu — Portfolio",
+  alternates: { canonical: "https://thiyagu-portfolio.me" },
   openGraph: {
-    title: "Thiyagu — AI-Enabled Developer & Full-Stack Engineer",
-    description:
-      "Building SaaS web apps and AI/ML systems end to end — from architecture to deployment.",
     type: "website",
+    siteName: "Thiyagu — Portfolio",
+    title: "Thiyagu — AI Engineer & Full-Stack SaaS Builder",
+    description:
+      "Shipping real SaaS & AI/ML systems — QuickNotes (40k+ visits), real-time snake detection (YOLOv8), and more.",
     url: "https://thiyagu-portfolio.me",
+    locale: "en_US",
+    // og:image is generated automatically by app/opengraph-image.tsx
   },
-  robots: { index: true, follow: true },
+  twitter: {
+    card: "summary_large_image",
+    title: "Thiyagu — AI Engineer & Full-Stack SaaS Builder",
+    description:
+      "Shipping production AI & SaaS. QuickNotes → 40k+ visits, bootstrapped.",
+    // twitter:image is generated automatically by app/twitter-image.tsx
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+      "max-video-preview": -1,
+    },
+  },
 };
 
 export default function RootLayout({
@@ -60,6 +88,7 @@ export default function RootLayout({
           Skip to content
         </a>
         {children}
+        <JsonLd />
         <Analytics />
       </body>
     </html>
