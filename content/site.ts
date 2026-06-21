@@ -84,6 +84,14 @@ export const projects: Project[] = [
     image: "/projects/quicknotes.png",
   },
   {
+    title: "Academic OS (Acadexa)",
+    blurb:
+      "A modern SaaS-style academic command center that unifies attendance tracking, grade analytics, assignment management, and placement prep in one dashboard. Adds GPA/CGPA forecasting, attendance prediction, an academic health score, and personalized insights — a prototype focused on frontend architecture and data visualization.",
+    tags: ["SaaS", "Analytics", "Dashboard"],
+    href: "https://acadexa-omega.vercel.app/",
+    image: "/projects/acdOS.png",
+  },
+  {
     title: "InnovateMate",
     blurb:
       "A collaboration platform connecting students, founders, mentors, and sponsors so startups and academic projects can find the teammates and resources they need to succeed.",

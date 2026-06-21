@@ -1,0 +1,1026 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AcadOS — Academic Operating System</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+<style>
+:root {
+  --bg: #0A0A0F;
+  --surface: #111117;
+  --surface2: #16161F;
+  --surface3: #1C1C28;
+  --border: rgba(255,255,255,0.07);
+  --border2: rgba(255,255,255,0.12);
+  --text: #F8FAFC;
+  --text2: #94A3B8;
+  --text3: #475569;
+  --indigo: #6366F1;
+  --indigo-dim: rgba(99,102,241,0.12);
+  --indigo-glow: rgba(99,102,241,0.06);
+  --emerald: #10B981;
+  --emerald-dim: rgba(16,185,129,0.12);
+  --amber: #F59E0B;
+  --amber-dim: rgba(245,158,11,0.12);
+  --rose: #F43F5E;
+  --rose-dim: rgba(244,63,94,0.12);
+  --purple: #A855F7;
+  --radius: 12px;
+  --radius-sm: 8px;
+  --radius-pill: 20px;
+  --sidebar-w: 224px;
+  --topbar-h: 60px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:'Inter',system-ui,sans-serif;font-size:14px;line-height:1.5;display:flex;height:100vh;overflow:hidden}
+/* SCROLLBAR */
+::-webkit-scrollbar{width:4px;height:4px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px}
+/* SIDEBAR */
+#sidebar{width:var(--sidebar-w);background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;flex-shrink:0;z-index:10}
+.sb-logo{padding:20px 20px 16px;display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--border)}
+.sb-logo-icon{width:30px;height:30px;background:var(--indigo);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:#fff;flex-shrink:0}
+.sb-logo-text{font-size:15px;font-weight:600;color:var(--text)}
+.sb-logo-sub{font-size:10px;color:var(--text3);margin-top:1px}
+.sb-nav{flex:1;overflow-y:auto;padding:12px 8px}
+.sb-section{font-size:10px;color:var(--text3);font-weight:600;letter-spacing:.08em;text-transform:uppercase;padding:12px 12px 6px}
+.nav-item{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:var(--radius-sm);cursor:pointer;color:var(--text2);font-size:13px;font-weight:400;transition:all .15s;margin:1px 0;border-left:3px solid transparent;position:relative}
+.nav-item:hover{background:var(--surface2);color:var(--text)}
+.nav-item.active{background:var(--indigo-dim);color:var(--indigo);border-left-color:var(--indigo);font-weight:500}
+.nav-icon{font-size:16px;width:18px;text-align:center;flex-shrink:0}
+.nav-badge{margin-left:auto;background:var(--rose-dim);color:var(--rose);font-size:10px;font-weight:600;padding:2px 6px;border-radius:10px}
+.nav-badge.indigo{background:var(--indigo-dim);color:var(--indigo)}
+.sb-bottom{padding:12px;border-top:1px solid var(--border)}
+.user-card{display:flex;align-items:center;gap:10px;padding:10px;border-radius:var(--radius-sm);background:var(--surface2)}
+.avatar{width:32px;height:32px;border-radius:50%;background:var(--indigo);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;color:#fff;flex-shrink:0}
+.user-name{font-size:13px;font-weight:500;color:var(--text)}
+.user-reg{font-size:11px;color:var(--text3)}
+/* MAIN */
+#main{flex:1;display:flex;flex-direction:column;overflow:hidden}
+#topbar{height:var(--topbar-h);background:var(--surface);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 24px;gap:16px;flex-shrink:0}
+.topbar-title{font-size:16px;font-weight:600;flex:1}
+.topbar-search{display:flex;align-items:center;gap:8px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:7px 12px;width:220px;cursor:pointer;color:var(--text3);font-size:13px}
+.topbar-search kbd{margin-left:auto;background:var(--surface3);border:1px solid var(--border2);border-radius:4px;padding:1px 5px;font-size:10px;font-family:inherit}
+.topbar-actions{display:flex;align-items:center;gap:8px}
+.icon-btn{width:34px;height:34px;border-radius:var(--radius-sm);background:var(--surface2);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--text2);font-size:16px;transition:all .15s}
+.icon-btn:hover{background:var(--surface3);color:var(--text)}
+.notif-dot{position:relative}
+.notif-dot::after{content:'';position:absolute;top:6px;right:6px;width:6px;height:6px;background:var(--rose);border-radius:50%;border:1.5px solid var(--surface)}
+#content{flex:1;overflow-y:auto;padding:24px}
+/* PAGES */
+.page{display:none}
+.page.active{display:block}
+/* CARDS */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:20px}
+.card-sm{padding:14px 16px}
+.card-title{font-size:12px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.07em;margin-bottom:14px}
+/* GRID */
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px}
+.grid-4{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+.grid-6{display:grid;grid-template-columns:repeat(6,1fr);gap:12px}
+/* KPI CARDS */
+.kpi{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px 18px}
+.kpi-label{font-size:11px;color:var(--text3);font-weight:500;text-transform:uppercase;letter-spacing:.07em;margin-bottom:6px}
+.kpi-value{font-size:28px;font-weight:700;font-variant-numeric:tabular-nums;line-height:1}
+.kpi-sub{font-size:11px;color:var(--text3);margin-top:5px}
+.kpi-trend{display:inline-flex;align-items:center;gap:3px;font-size:11px;font-weight:500;margin-top:4px}
+.trend-up{color:var(--emerald)}
+.trend-down{color:var(--rose)}
+/* BADGES */
+.badge{display:inline-flex;align-items:center;gap:4px;padding:3px 8px;border-radius:10px;font-size:11px;font-weight:500}
+.badge-indigo{background:var(--indigo-dim);color:var(--indigo)}
+.badge-emerald{background:var(--emerald-dim);color:var(--emerald)}
+.badge-amber{background:var(--amber-dim);color:var(--amber)}
+.badge-rose{background:var(--rose-dim);color:var(--rose)}
+.badge-muted{background:var(--surface3);color:var(--text3)}
+/* PROGRESS BAR */
+.prog-wrap{background:var(--surface3);border-radius:4px;height:4px;overflow:hidden}
+.prog-bar{height:4px;border-radius:4px;transition:width .5s ease}
+.prog-indigo{background:var(--indigo)}
+.prog-emerald{background:var(--emerald)}
+.prog-amber{background:var(--amber)}
+.prog-rose{background:var(--rose)}
+/* ALERT CARDS */
+.alert{border-radius:var(--radius);padding:12px 16px;display:flex;align-items:flex-start;gap:10px;font-size:13px}
+.alert-rose{background:var(--rose-dim);border:1px solid rgba(244,63,94,.2)}
+.alert-amber{background:var(--amber-dim);border:1px solid rgba(245,158,11,.2)}
+.alert-indigo{background:var(--indigo-dim);border:1px solid rgba(99,102,241,.2)}
+.alert-icon{font-size:16px;flex-shrink:0;margin-top:1px}
+.alert-title{font-weight:600;margin-bottom:2px}
+/* CHIP */
+.chip{display:inline-flex;align-items:center;gap:5px;padding:4px 10px;border-radius:var(--radius-pill);font-size:12px;font-weight:500;border:1px solid var(--border2);background:var(--surface2);color:var(--text2);cursor:pointer;transition:all .15s}
+.chip:hover,.chip.active{background:var(--indigo-dim);color:var(--indigo);border-color:rgba(99,102,241,.3)}
+.dot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
+.dot-emerald{background:var(--emerald)}
+.dot-amber{background:var(--amber)}
+.dot-rose{background:var(--rose)}
+.dot-indigo{background:var(--indigo)}
+/* TIMELINE */
+.timeline{position:relative;padding-left:20px}
+.timeline::before{content:'';position:absolute;left:6px;top:8px;bottom:8px;width:1px;background:var(--border2)}
+.tl-item{position:relative;padding:0 0 20px 16px}
+.tl-item::before{content:'';position:absolute;left:-14px;top:5px;width:8px;height:8px;border-radius:50%;background:var(--indigo);border:2px solid var(--bg)}
+.tl-item:last-child{padding-bottom:0}
+.tl-time{font-size:11px;color:var(--text3);margin-bottom:2px}
+.tl-title{font-size:13px;font-weight:500;color:var(--text)}
+.tl-sub{font-size:12px;color:var(--text2);margin-top:2px}
+/* SLIDER */
+input[type=range]{-webkit-appearance:none;width:100%;height:4px;border-radius:2px;background:var(--surface3);outline:none;cursor:pointer}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;height:16px;border-radius:50%;background:var(--indigo);cursor:pointer;border:2px solid var(--bg);box-shadow:0 0 0 3px var(--indigo-dim)}
+input[type=range]::-webkit-slider-runnable-track{height:4px;border-radius:2px}
+/* BUTTONS */
+.btn{display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border-radius:var(--radius-sm);font-size:13px;font-weight:500;cursor:pointer;transition:all .15s;border:none;font-family:inherit}
+.btn-primary{background:var(--indigo);color:#fff}
+.btn-primary:hover{background:#5558e8}
+.btn-outline{background:transparent;color:var(--text2);border:1px solid var(--border2)}
+.btn-outline:hover{background:var(--surface2);color:var(--text)}
+/* HERO GLASS */
+.hero-glass{background:linear-gradient(135deg,rgba(99,102,241,0.08) 0%,rgba(16,185,129,0.04) 100%);border:1px solid rgba(99,102,241,0.15);border-radius:var(--radius);padding:28px;position:relative;overflow:hidden}
+.hero-glass::before{content:'';position:absolute;top:-60px;right:-60px;width:200px;height:200px;background:radial-gradient(circle,rgba(99,102,241,0.08) 0%,transparent 70%);pointer-events:none}
+/* CHAT */
+.chat-wrap{display:flex;flex-direction:column;gap:16px;padding:4px}
+.msg{display:flex;gap:10px;align-items:flex-start}
+.msg-user{flex-direction:row-reverse}
+.msg-avatar{width:28px;height:28px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600}
+.msg-ai-av{background:var(--indigo);color:#fff}
+.msg-user-av{background:var(--surface3);color:var(--text2)}
+.msg-bubble{max-width:80%;padding:12px 14px;border-radius:12px;font-size:13px;line-height:1.6}
+.msg-ai-bubble{background:var(--surface2);border:1px solid var(--border);border-top-left-radius:4px;color:var(--text)}
+.msg-user-bubble{background:var(--indigo);color:#fff;border-top-right-radius:4px}
+/* TABLE */
+.tbl{width:100%;border-collapse:collapse;font-size:13px}
+.tbl th{text-align:left;padding:8px 12px;color:var(--text3);font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.07em;border-bottom:1px solid var(--border)}
+.tbl td{padding:10px 12px;border-bottom:1px solid var(--border);color:var(--text)}
+.tbl tr:last-child td{border-bottom:none}
+.tbl tr:hover td{background:var(--surface2)}
+/* KANBAN */
+.kanban{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;overflow-x:auto}
+.kanban-col{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:14px;min-width:220px}
+.kanban-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.kanban-title{font-size:12px;font-weight:600;color:var(--text2)}
+.kanban-count{background:var(--surface3);color:var(--text3);font-size:10px;font-weight:600;padding:2px 7px;border-radius:10px}
+.kanban-card{background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:12px;margin-bottom:8px;cursor:pointer;transition:border-color .15s}
+.kanban-card:hover{border-color:var(--border2)}
+.kanban-card:last-child{margin-bottom:0}
+/* HEAT */
+.heat-grid{display:grid;grid-template-columns:repeat(53,1fr);gap:2px;margin-top:8px}
+.heat-cell{aspect-ratio:1;border-radius:2px;background:var(--surface3)}
+.heat-0{background:var(--surface3)}
+.heat-1{background:rgba(99,102,241,0.2)}
+.heat-2{background:rgba(99,102,241,0.45)}
+.heat-3{background:rgba(99,102,241,0.7)}
+.heat-4{background:var(--indigo)}
+/* GAUGE */
+.gauge-wrap{position:relative;width:160px;height:80px;overflow:hidden;margin:0 auto}
+.gauge-wrap svg{width:100%;height:auto}
+/* ACHIEVEMENT */
+.ach-card{background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);padding:14px;text-align:center;cursor:pointer;transition:all .15s}
+.ach-card:hover{border-color:rgba(99,102,241,.3)}
+.ach-card.locked{opacity:.4;filter:grayscale(1)}
+.ach-icon{font-size:28px;margin-bottom:6px}
+.ach-name{font-size:12px;font-weight:600;color:var(--text);margin-bottom:3px}
+.ach-date{font-size:11px;color:var(--text3)}
+/* CHAT INPUT */
+.chat-input-wrap{background:var(--surface);border:1px solid var(--border2);border-radius:12px;display:flex;align-items:center;gap:10px;padding:10px 14px;margin-top:16px}
+.chat-input{flex:1;background:transparent;border:none;outline:none;color:var(--text);font-size:13px;font-family:inherit}
+.chat-input::placeholder{color:var(--text3)}
+/* TABS */
+.tab-bar{display:flex;gap:2px;background:var(--surface2);padding:4px;border-radius:var(--radius-sm);width:fit-content;margin-bottom:20px}
+.tab-btn{padding:6px 14px;border-radius:6px;font-size:12px;font-weight:500;cursor:pointer;color:var(--text3);transition:all .15s}
+.tab-btn.active{background:var(--surface);color:var(--text)}
+/* SUBJECT ROW */
+.subj-row{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--border)}
+.subj-row:last-child{border-bottom:none}
+.subj-name{font-size:13px;font-weight:500;min-width:130px}
+.subj-code{font-size:11px;color:var(--text3)}
+.subj-prog{flex:1}
+.subj-pct{font-size:15px;font-weight:700;min-width:48px;text-align:right;font-variant-numeric:tabular-nums}
+/* MISC */
+.sep{height:1px;background:var(--border);margin:16px 0}
+.section-title{font-size:18px;font-weight:600;color:var(--text);margin-bottom:4px}
+.section-sub{font-size:13px;color:var(--text3);margin-bottom:20px}
+.row{display:flex;gap:16px}
+.col-60{flex:0 0 60%}
+.col-40{flex:0 0 40%}
+.col-55{flex:0 0 55%}
+.col-45{flex:0 0 45%}
+.flex-between{display:flex;align-items:center;justify-content:space-between}
+.flex-center{display:flex;align-items:center;gap:8px}
+.mt-4{margin-top:4px}.mt-8{margin-top:8px}.mt-12{margin-top:12px}.mt-16{margin-top:16px}.mt-20{margin-top:20px}.mt-24{margin-top:24px}
+.mb-4{margin-bottom:4px}.mb-8{margin-bottom:8px}.mb-12{margin-bottom:12px}.mb-16{margin-bottom:16px}.mb-20{margin-bottom:20px}
+.text-indigo{color:var(--indigo)}.text-emerald{color:var(--emerald)}.text-amber{color:var(--amber)}.text-rose{color:var(--rose)}.text-muted{color:var(--text3)}.text-sm{font-size:12px}.text-xs{font-size:11px}.fw-600{font-weight:600}.fw-700{font-weight:700}
+/* PLACEMENT */
+.skill-row{display:flex;align-items:center;gap:12px;padding:8px 0}
+.skill-name{min-width:130px;font-size:13px;color:var(--text2)}
+.skill-prog{flex:1}
+.skill-pct{min-width:40px;text-align:right;font-size:13px;font-weight:600;font-variant-numeric:tabular-nums}
+/* SETTINGS TOGGLE */
+.toggle-row{display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:1px solid var(--border)}
+.toggle-row:last-child{border-bottom:none}
+.toggle{width:40px;height:22px;border-radius:11px;background:var(--surface3);position:relative;cursor:pointer;transition:background .2s;flex-shrink:0;border:1px solid var(--border2)}
+.toggle.on{background:var(--indigo);border-color:var(--indigo)}
+.toggle::after{content:'';position:absolute;top:2px;left:2px;width:16px;height:16px;border-radius:50%;background:#fff;transition:transform .2s}
+.toggle.on::after{transform:translateX(18px)}
+.color-swatch{width:24px;height:24px;border-radius:6px;cursor:pointer;border:2px solid transparent;transition:all .15s;flex-shrink:0}
+.color-swatch.sel{border-color:#fff;transform:scale(1.1)}
+/* EXAM */
+.readiness-card{background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);padding:16px;position:relative;overflow:hidden}
+.readiness-ring{width:80px;height:80px;position:relative;flex-shrink:0}
+.readiness-ring svg{transform:rotate(-90deg)}
+/* CONTEXT PANEL */
+.ctx-card{background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:10px 12px;margin-bottom:8px}
+.ctx-label{font-size:10px;color:var(--text3);font-weight:600;text-transform:uppercase;letter-spacing:.07em;margin-bottom:4px}
+.ctx-value{font-size:14px;font-weight:600;color:var(--text)}
+</style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<div id="sidebar">
+  <div class="sb-logo">
+    <div class="sb-logo-icon">A</div>
+    <div>
+      <div class="sb-logo-text">AcadOS</div>
+      <div class="sb-logo-sub">Academic OS · VIT Vellore</div>
+    </div>
+  </div>
+  <nav class="sb-nav">
+    <div class="nav-item active" onclick="goto('home',this)"><span class="nav-icon">⌂</span> Home</div>
+    <div class="nav-item" onclick="goto('analytics',this)"><span class="nav-icon">◈</span> Analytics</div>
+    <div class="nav-item" onclick="goto('attendance',this)"><span class="nav-icon">◉</span> Attendance <span class="nav-badge">!</span></div>
+    <div class="nav-item" onclick="goto('cgpa',this)"><span class="nav-icon">◎</span> CGPA Sim</div>
+    <div class="nav-item" onclick="goto('assignments',this)"><span class="nav-icon">▣</span> Assignments <span class="nav-badge">3</span></div>
+    <div class="nav-item" onclick="goto('mail',this)"><span class="nav-icon">✉</span> Mail Hub <span class="nav-badge">7</span></div>
+    <div class="nav-item" onclick="goto('placement',this)"><span class="nav-icon">◆</span> Placements</div>
+    <div class="nav-item" onclick="goto('faculty',this)"><span class="nav-icon">☻</span> Faculty Guide</div>
+    <div class="nav-item" onclick="goto('exam',this)"><span class="nav-icon">✎</span> Exam Prep</div>
+    <div class="nav-item" onclick="goto('productivity',this)"><span class="nav-icon">⚡</span> Productivity</div>
+    <div class="nav-item" onclick="goto('goals',this)"><span class="nav-icon">★</span> Goals</div>
+    <div class="nav-item" onclick="goto('ai',this)"><span class="nav-icon">◈</span> AI Assistant</div>
+    <div class="nav-item" onclick="goto('settings',this)"><span class="nav-icon">⚙</span> Settings</div>
+  </nav>
+  <div class="sb-bottom">
+    <div class="user-card">
+      <div class="avatar">TK</div>
+      <div>
+        <div class="user-name">Thiyagu</div>
+        <div class="user-reg">22BCT0XXX · Sem 6</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MAIN -->
+<div id="main">
+  <div id="topbar">
+    <div class="topbar-title" id="page-title">Home Dashboard</div>
+    <div class="topbar-search">🔍 <span>Search anything...</span> <kbd>⌘K</kbd></div>
+    <div class="topbar-actions">
+      <div class="icon-btn notif-dot">🔔</div>
+      <div class="icon-btn">☀</div>
+      <div class="avatar" style="cursor:pointer">TK</div>
+    </div>
+  </div>
+  <div id="content">
+
+    <!-- ═══ HOME ═══ -->
+    <div class="page active" id="page-home">
+      <div class="hero-glass mb-20">
+        <div class="flex-between mb-12">
+          <div>
+            <div style="font-size:24px;font-weight:700;margin-bottom:4px">Good evening, Thiyagu 👋</div>
+            <div class="text-muted">Winter Semester 2024–25 · Week 14 of 18 · Saturday, June 13</div>
+          </div>
+          <div class="badge badge-indigo" style="font-size:12px;padding:6px 12px">🎯 FAT in 12 days</div>
+        </div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap">
+          <div class="badge badge-emerald" style="font-size:13px;padding:6px 14px">📈 CGPA 8.74</div>
+          <div class="badge badge-amber" style="font-size:13px;padding:6px 14px">⚠ Attendance 81.3%</div>
+          <div class="badge badge-rose" style="font-size:13px;padding:6px 14px">📝 3 Active DAs</div>
+          <div class="badge badge-indigo" style="font-size:13px;padding:6px 14px">💼 2 Placement Drives</div>
+        </div>
+      </div>
+
+      <!-- ALERTS -->
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:20px">
+        <div class="alert alert-rose">
+          <div class="alert-icon">⚠</div>
+          <div><div class="alert-title" style="color:var(--rose)">Attendance Risk</div><div class="text-sm">AI4003 at 68% — need 6 consecutive classes to recover</div></div>
+        </div>
+        <div class="alert alert-amber">
+          <div class="alert-icon">📊</div>
+          <div><div class="alert-title" style="color:var(--amber)">CAT-2 Gap</div><div class="text-sm">Need 38/50 in MAT2004 to maintain CGPA 8.5</div></div>
+        </div>
+        <div class="alert alert-indigo">
+          <div class="alert-icon">📅</div>
+          <div><div class="alert-title" style="color:var(--indigo)">DA Due Soon</div><div class="text-sm">Software Engineering DA-3 due in 18 hours</div></div>
+        </div>
+      </div>
+
+      <!-- KPI ROW -->
+      <div class="grid-6 mb-20">
+        <div class="kpi">
+          <div class="kpi-label">Attendance</div>
+          <div class="kpi-value text-amber">81.3%</div>
+          <div class="kpi-trend trend-down">↓ 2 courses at risk</div>
+        </div>
+        <div class="kpi">
+          <div class="kpi-label">CGPA</div>
+          <div class="kpi-value text-emerald">8.74</div>
+          <div class="kpi-trend trend-up">↑ +0.12 this sem</div>
+        </div>
+        <div class="kpi">
+          <div class="kpi-label">Pending DAs</div>
+          <div class="kpi-value text-rose">3</div>
+          <div class="kpi-sub">1 due today</div>
+        </div>
+        <div class="kpi">
+          <div class="kpi-label">Placements</div>
+          <div class="kpi-value text-indigo">2</div>
+          <div class="kpi-sub">Drives open</div>
+        </div>
+        <div class="kpi">
+          <div class="kpi-label">FAT In</div>
+          <div class="kpi-value text-amber">12</div>
+          <div class="kpi-sub">days remaining</div>
+        </div>
+        <div class="kpi">
+          <div class="kpi-label">Unread Mail</div>
+          <div class="kpi-value" style="color:var(--text2)">7</div>
+          <div class="kpi-sub">3 need action</div>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="col-60">
+          <div class="card">
+            <div class="card-title">Today's Timeline</div>
+            <div class="timeline">
+              <div class="tl-item"><div class="tl-time">08:00 – 08:50</div><div class="tl-title">CSE3002 Lab <span class="badge badge-indigo ml-8">Class</span></div><div class="tl-sub">TT401 · Prof. Rajan</div></div>
+              <div class="tl-item"><div class="tl-time">10:00 – 10:50</div><div class="tl-title">MAT2004 <span class="badge badge-indigo ml-8">Class</span></div><div class="tl-sub">MB101 · Prof. Anitha</div></div>
+              <div class="tl-item" style="--tl-color:var(--rose)"><div class="tl-time">⚠ 23:59 Today</div><div class="tl-title" style="color:var(--rose)">SE DA-3 Deadline <span class="badge badge-rose ml-8">Urgent</span></div><div class="tl-sub">Software Engineering · Submit on VTOP</div></div>
+              <div class="tl-item"><div class="tl-time">14:00 – 16:50</div><div class="tl-title">AI4003 Lab <span class="badge badge-amber ml-8">Attendance Risk</span></div><div class="tl-sub">NLH104 · Prof. Meera</div></div>
+              <div class="tl-item"><div class="tl-time">16:00</div><div class="tl-title">Faculty Meeting <span class="badge badge-amber ml-8">Meeting</span></div><div class="tl-sub">Prof. Meera · SJT 412</div></div>
+            </div>
+          </div>
+        </div>
+        <div class="col-40">
+          <div class="card">
+            <div class="card-title">Subject Health</div>
+            <div class="subj-row">
+              <div><div class="subj-name">CSE3002</div><div class="subj-code">Lab Networks</div></div>
+              <div class="subj-prog"><div class="prog-wrap"><div class="prog-bar prog-emerald" style="width:95%"></div></div></div>
+              <div class="subj-pct text-emerald">95%</div>
+            </div>
+            <div class="subj-row">
+              <div><div class="subj-name">PHY1010</div><div class="subj-code">Physics</div></div>
+              <div class="subj-prog"><div class="prog-wrap"><div class="prog-bar prog-emerald" style="width:91%"></div></div></div>
+              <div class="subj-pct text-emerald">91%</div>
+            </div>
+            <div class="subj-row">
+              <div><div class="subj-name">ENG2001</div><div class="subj-code">English</div></div>
+              <div class="subj-prog"><div class="prog-wrap"><div class="prog-bar prog-emerald" style="width:82%"></div></div></div>
+              <div class="subj-pct text-emerald">82%</div>
+            </div>
+            <div class="subj-row">
+              <div><div class="subj-name">MAT2004</div><div class="subj-code">Mathematics</div></div>
+              <div class="subj-prog"><div class="prog-wrap"><div class="prog-bar prog-amber" style="width:76%"></div></div></div>
+              <div class="subj-pct text-amber">76%</div>
+            </div>
+            <div class="subj-row">
+              <div><div class="subj-name">ECE2002</div><div class="subj-code">Electronics</div></div>
+              <div class="subj-prog"><div class="prog-wrap"><div class="prog-bar prog-amber" style="width:79%"></div></div></div>
+              <div class="subj-pct text-amber">79%</div>
+            </div>
+            <div class="subj-row">
+              <div><div class="subj-name">AI4003</div><div class="subj-code">AI & Robotics</div></div>
+              <div class="subj-prog"><div class="prog-wrap"><div class="prog-bar prog-rose" style="width:68%"></div></div></div>
+              <div class="subj-pct text-rose">68%</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ ANALYTICS ═══ -->
+    <div class="page" id="page-analytics">
+      <div class="section-title">Academic Analytics</div>
+      <div class="section-sub">Semester performance overview — Winter 2024–25</div>
+      <div class="grid-3 mb-20">
+        <div class="kpi"><div class="kpi-label">Semester SGPA</div><div class="kpi-value text-emerald">8.60</div><div class="kpi-trend trend-up">↑ Best semester yet</div></div>
+        <div class="kpi"><div class="kpi-label">Best Subject</div><div class="kpi-value" style="font-size:18px">CSE3002</div><div class="mt-4"><span class="badge badge-emerald">S Grade on track</span></div></div>
+        <div class="kpi"><div class="kpi-label">Needs Attention</div><div class="kpi-value" style="font-size:18px;color:var(--rose)">AI4003</div><div class="mt-4"><span class="badge badge-rose">Need 44/50 FAT</span></div></div>
+      </div>
+      <div class="row mb-20">
+        <div style="flex:1">
+          <div class="card">
+            <div class="card-title">CGPA Trajectory</div>
+            <canvas id="cgpaChart" height="180"></canvas>
+          </div>
+        </div>
+        <div style="flex:1">
+          <div class="card">
+            <div class="card-title">Subject Performance Radar</div>
+            <canvas id="radarChart" height="180"></canvas>
+          </div>
+        </div>
+      </div>
+      <div class="card mb-16">
+        <div class="card-title">Marks Breakdown</div>
+        <table class="tbl">
+          <thead><tr><th>Subject</th><th>Code</th><th>CAT-1 /50</th><th>CAT-2 /50</th><th>DA /20</th><th>Proj /10</th><th>Total</th><th>Grade (proj)</th></tr></thead>
+          <tbody>
+            <tr><td>Lab Networks</td><td class="text-muted">CSE3002</td><td><div class="prog-wrap mt-4"><div class="prog-bar prog-emerald" style="width:76%"></div></div><span class="text-xs text-muted">38/50</span></td><td><div class="prog-wrap mt-4"><div class="prog-bar prog-emerald" style="width:82%"></div></div><span class="text-xs text-muted">41/50</span></td><td class="text-emerald">18/20</td><td class="text-amber">8/10</td><td class="fw-600">105/130</td><td><span class="badge badge-emerald">S</span></td></tr>
+            <tr><td>Mathematics</td><td class="text-muted">MAT2004</td><td><div class="prog-wrap mt-4"><div class="prog-bar prog-amber" style="width:58%"></div></div><span class="text-xs text-muted">29/50</span></td><td><div class="prog-wrap mt-4"><div class="prog-bar prog-amber" style="width:66%"></div></div><span class="text-xs text-muted">33/50</span></td><td class="text-emerald">17/20</td><td class="text-emerald">9/10</td><td class="fw-600 text-amber">88/130</td><td><span class="badge badge-amber">B</span></td></tr>
+            <tr><td>AI & Robotics</td><td class="text-muted">AI4003</td><td><div class="prog-wrap mt-4"><div class="prog-bar prog-rose" style="width:44%"></div></div><span class="text-xs text-muted">22/50</span></td><td><div class="prog-wrap mt-4"><div class="prog-bar prog-amber" style="width:60%"></div></div><span class="text-xs text-muted">30/50</span></td><td class="text-amber">14/20</td><td>—</td><td class="fw-600 text-rose">66/120</td><td><span class="badge badge-rose">C</span></td></tr>
+            <tr><td>Physics</td><td class="text-muted">PHY1010</td><td><div class="prog-wrap mt-4"><div class="prog-bar prog-emerald" style="width:88%"></div></div><span class="text-xs text-muted">44/50</span></td><td><div class="prog-wrap mt-4"><div class="prog-bar prog-emerald" style="width:90%"></div></div><span class="text-xs text-muted">45/50</span></td><td class="text-emerald">19/20</td><td class="text-emerald">10/10</td><td class="fw-600 text-emerald">118/130</td><td><span class="badge badge-emerald">S</span></td></tr>
+            <tr><td>Electronics</td><td class="text-muted">ECE2002</td><td><div class="prog-wrap mt-4"><div class="prog-bar prog-emerald" style="width:80%"></div></div><span class="text-xs text-muted">40/50</span></td><td><div class="prog-wrap mt-4"><div class="prog-bar prog-amber" style="width:72%"></div></div><span class="text-xs text-muted">36/50</span></td><td class="text-emerald">18/20</td><td class="text-emerald">9/10</td><td class="fw-600">103/130</td><td><span class="badge badge-indigo">A</span></td></tr>
+            <tr><td>English</td><td class="text-muted">ENG2001</td><td><div class="prog-wrap mt-4"><div class="prog-bar prog-emerald" style="width:84%"></div></div><span class="text-xs text-muted">42/50</span></td><td><div class="prog-wrap mt-4"><div class="prog-bar prog-emerald" style="width:78%"></div></div><span class="text-xs text-muted">39/50</span></td><td class="text-emerald">18/20</td><td class="text-emerald">9/10</td><td class="fw-600">108/130</td><td><span class="badge badge-indigo">A</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="grid-2">
+        <div class="card card-sm" style="border-left:3px solid var(--emerald)"><div class="card-title">Strengths</div><p class="text-sm">PHY1010 and CSE3002 are your anchors — consistent S/A performance. ENG2001 improving every assessment.</p></div>
+        <div class="card card-sm" style="border-left:3px solid var(--rose)"><div class="card-title">Focus Areas</div><p class="text-sm">AI4003 requires 44/50 in FAT to secure a B. MAT2004 CAT scores are below average — prioritize revision this week.</p></div>
+      </div>
+    </div>
+
+    <!-- ═══ ATTENDANCE ═══ -->
+    <div class="page" id="page-attendance">
+      <div class="flex-between mb-20">
+        <div><div class="section-title">Attendance Intelligence</div><div class="section-sub">Smart attendance predictor — always know your risk level</div></div>
+        <div style="text-align:center;background:var(--amber-dim);border:1px solid rgba(245,158,11,.2);border-radius:var(--radius);padding:12px 20px"><div class="text-xs text-muted mb-4">Health Score</div><div style="font-size:32px;font-weight:700;color:var(--amber)">81</div><div class="text-xs text-amber">Moderate</div></div>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px">
+        <div id="att-cards"></div>
+      </div>
+      <div id="att-grid"></div>
+      <div class="card mt-16">
+        <div class="card-title">Safe Absence Counter</div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap" id="safe-chips"></div>
+      </div>
+    </div>
+
+    <!-- ═══ CGPA SIMULATOR ═══ -->
+    <div class="page" id="page-cgpa">
+      <div class="section-title">CGPA Simulator</div>
+      <div class="section-sub">Simulate your target and see exactly what you need to score</div>
+      <div class="row">
+        <div style="flex:0 0 38%">
+          <div class="card">
+            <div class="card-title">Inputs</div>
+            <div class="mb-16">
+              <div class="text-xs text-muted mb-4">Current CGPA</div>
+              <div style="font-size:36px;font-weight:700;color:var(--emerald)">8.74</div>
+            </div>
+            <div class="mb-20">
+              <div class="flex-between mb-8"><span class="text-sm text-muted">Target CGPA</span><span class="fw-600 text-indigo" id="target-label">9.00</span></div>
+              <input type="range" min="8" max="10" step="0.05" value="9.00" id="target-slider" oninput="updateCGPA()">
+            </div>
+            <div class="sep"></div>
+            <div class="card-title mt-16">Required FAT Scores</div>
+            <div id="fat-requirements"></div>
+          </div>
+        </div>
+        <div style="flex:1">
+          <div class="card mb-16" style="text-align:center;background:linear-gradient(135deg,rgba(99,102,241,0.06),transparent)">
+            <div class="text-xs text-muted mb-8">Projected CGPA after this semester</div>
+            <div style="font-size:56px;font-weight:700;color:var(--indigo);font-variant-numeric:tabular-nums" id="proj-cgpa">8.91</div>
+            <div class="text-emerald fw-600 mt-8" id="proj-delta">↑ +0.17 improvement</div>
+            <div class="mt-12">
+              <div class="text-xs text-muted mb-8">Probability of reaching target</div>
+              <div style="background:var(--surface3);border-radius:8px;height:16px;overflow:hidden">
+                <div id="prob-bar" style="height:16px;background:var(--indigo);border-radius:8px;width:78%;transition:width .4s"></div>
+              </div>
+              <div class="fw-600 mt-8 text-indigo" id="prob-text">78% probability</div>
+            </div>
+          </div>
+          <div class="grid-3 mb-16">
+            <div class="card card-sm" style="border:1px solid rgba(16,185,129,.2);text-align:center"><div class="text-xs text-muted mb-4">Best Case (all S)</div><div class="fw-700 text-emerald" style="font-size:22px">9.21</div></div>
+            <div class="card card-sm" style="border:1px solid rgba(99,102,241,.2);text-align:center"><div class="text-xs text-muted mb-4">Realistic</div><div class="fw-700 text-indigo" style="font-size:22px" id="real-cgpa">8.91</div></div>
+            <div class="card card-sm" style="border:1px solid rgba(244,63,94,.2);text-align:center"><div class="text-xs text-muted mb-4">Worst Case (all C)</div><div class="fw-700 text-rose" style="font-size:22px">8.43</div></div>
+          </div>
+          <div class="card">
+            <div class="card-title">Grade Requirement Table</div>
+            <table class="tbl">
+              <thead><tr><th>Subject</th><th>For S (10)</th><th>For A (9)</th><th>For B (8)</th><th>Status</th></tr></thead>
+              <tbody id="grade-req-table"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ ASSIGNMENTS ═══ -->
+    <div class="page" id="page-assignments">
+      <div class="flex-between mb-12"><div class="section-title">Work Center</div><div class="text-muted text-sm">3 active · 1 overdue · 2 submitted</div></div>
+      <div class="card mb-20">
+        <div class="card-title">Weekly Workload Forecast</div>
+        <canvas id="workloadChart" height="80"></canvas>
+      </div>
+      <div class="kanban">
+        <div class="kanban-col">
+          <div class="kanban-header"><span class="kanban-title">NOT STARTED</span><span class="kanban-count" style="background:var(--rose-dim);color:var(--rose)">2</span></div>
+          <div class="kanban-card"><div class="flex-between mb-8"><span class="badge badge-rose">SE DA-3</span><span class="badge badge-rose">🔴 High</span></div><div class="fw-600 mb-4">Software Eng DA-3</div><div class="text-xs text-muted mb-8">CSE4001 · Due in <span style="color:var(--rose)">18h</span></div><div class="prog-wrap"><div class="prog-bar prog-rose" style="width:0%"></div></div></div>
+          <div class="kanban-card"><div class="flex-between mb-8"><span class="badge badge-amber">AI Lab 4</span><span class="badge badge-amber">🟡 Medium</span></div><div class="fw-600 mb-4">AI Lab Report 4</div><div class="text-xs text-muted mb-8">AI4003 · Due in 2 days</div><div class="prog-wrap"><div class="prog-bar prog-amber" style="width:0%"></div></div></div>
+        </div>
+        <div class="kanban-col">
+          <div class="kanban-header"><span class="kanban-title">IN PROGRESS</span><span class="kanban-count" style="background:var(--amber-dim);color:var(--amber)">2</span></div>
+          <div class="kanban-card"><div class="flex-between mb-8"><span class="badge badge-indigo">MAT Assign</span><span class="badge badge-amber">🟡 Medium</span></div><div class="fw-600 mb-4">MAT Assignment 2</div><div class="text-xs text-muted mb-8">MAT2004 · Due in 4 days</div><div class="prog-wrap"><div class="prog-bar prog-amber" style="width:60%"></div></div><div class="text-xs text-muted mt-4">60% complete</div></div>
+          <div class="kanban-card"><div class="flex-between mb-8"><span class="badge badge-indigo">PHY Viva</span><span class="badge badge-muted">🟢 Low</span></div><div class="fw-600 mb-4">Physics Viva Prep</div><div class="text-xs text-muted mb-8">PHY1010 · Due in 5 days</div><div class="prog-wrap"><div class="prog-bar prog-indigo" style="width:30%"></div></div><div class="text-xs text-muted mt-4">30% complete</div></div>
+        </div>
+        <div class="kanban-col">
+          <div class="kanban-header"><span class="kanban-title">SUBMITTED</span><span class="kanban-count" style="background:var(--indigo-dim);color:var(--indigo)">1</span></div>
+          <div class="kanban-card"><div class="flex-between mb-8"><span class="badge badge-indigo">CSE DA-2</span><span class="badge badge-muted">Awaiting grade</span></div><div class="fw-600 mb-4">CSE DA-2</div><div class="text-xs text-muted">Submitted 2 days ago</div></div>
+        </div>
+        <div class="kanban-col">
+          <div class="kanban-header"><span class="kanban-title">COMPLETED</span><span class="kanban-count" style="background:var(--emerald-dim);color:var(--emerald)">2</span></div>
+          <div class="kanban-card" style="border-color:rgba(16,185,129,.15)"><div class="flex-between mb-8"><span class="badge badge-emerald">ENG Assign</span><span class="text-emerald text-xs fw-600">18/20 ✓</span></div><div class="fw-600 mb-4" style="text-decoration:line-through;color:var(--text3)">ENG Assignment 1</div><div class="text-xs text-emerald">Excellent</div></div>
+          <div class="kanban-card" style="border-color:rgba(16,185,129,.15)"><div class="flex-between mb-8"><span class="badge badge-emerald">MAT Quiz</span><span class="text-emerald text-xs fw-600">9/10 ✓</span></div><div class="fw-600 mb-4" style="text-decoration:line-through;color:var(--text3)">Math Quiz 1</div><div class="text-xs text-emerald">Completed</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ MAIL ═══ -->
+    <div class="page" id="page-mail">
+      <div class="section-title mb-4">Mail Intelligence Hub</div>
+      <div class="section-sub">AI-sorted · 7 require action</div>
+      <div style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap">
+        <span class="chip active">All <span class="badge badge-indigo">7</span></span>
+        <span class="chip">Placement <span class="badge badge-indigo">2</span></span>
+        <span class="chip">Faculty <span class="badge badge-amber">2</span></span>
+        <span class="chip">Academic <span class="badge badge-rose">1</span></span>
+        <span class="chip">Events</span>
+        <span class="chip">Clubs</span>
+      </div>
+      <div class="row">
+        <div style="flex:0 0 36%">
+          <div id="mail-list">
+            <div class="mail-item card card-sm mb-8" style="cursor:pointer;border-left:3px solid var(--indigo)" onclick="showMail(0)">
+              <div class="flex-between mb-4"><span class="fw-600 text-sm">TCS NextStep</span><span class="badge badge-rose">Urgent</span></div>
+              <div class="text-sm mb-4">Interview shortlist announced</div>
+              <div class="text-xs text-muted">2h ago</div>
+            </div>
+            <div class="mail-item card card-sm mb-8" style="cursor:pointer;border-left:3px solid var(--amber)" onclick="showMail(1)">
+              <div class="flex-between mb-4"><span class="fw-600 text-sm">Prof. Meera Krishnan</span><span class="badge badge-amber">Action Required</span></div>
+              <div class="text-sm mb-4">CAT-2 marks correction deadline</div>
+              <div class="text-xs text-muted">5h ago</div>
+            </div>
+            <div class="mail-item card card-sm mb-8" style="cursor:pointer;border-left:3px solid var(--rose)" onclick="showMail(2)">
+              <div class="flex-between mb-4"><span class="fw-600 text-sm">Exam Cell</span><span class="badge badge-rose">Action Required</span></div>
+              <div class="text-sm mb-4">FAT Schedule Released</div>
+              <div class="text-xs text-muted">1d ago</div>
+            </div>
+            <div class="mail-item card card-sm mb-8" style="cursor:pointer;border-left:3px solid var(--indigo)" onclick="showMail(3)">
+              <div class="flex-between mb-4"><span class="fw-600 text-sm">Infosys InfyTQ</span><span class="badge badge-amber">Action Required</span></div>
+              <div class="text-sm mb-4">Assessment link inside</div>
+              <div class="text-xs text-muted">1d ago</div>
+            </div>
+            <div class="mail-item card card-sm mb-8" style="cursor:pointer;border-left:3px solid var(--purple)" onclick="showMail(4)">
+              <div class="flex-between mb-4"><span class="fw-600 text-sm">VIT TechFest</span><span class="badge badge-muted">FYI</span></div>
+              <div class="text-sm mb-4">Registration closes tomorrow</div>
+              <div class="text-xs text-muted">2d ago</div>
+            </div>
+          </div>
+        </div>
+        <div style="flex:1" id="mail-preview">
+          <div class="alert alert-indigo mb-12"><div class="alert-icon">✨</div><div><div class="alert-title" style="color:var(--indigo)">AI Summary</div><div class="text-sm">TCS shortlisted 24 students from VIT Vellore. Interview scheduled June 18. Bring resume, offer letter, and photo ID.</div></div></div>
+          <div class="card">
+            <div class="flex-between mb-16"><div><div class="fw-600">TCS NextStep — Interview Shortlist</div><div class="text-xs text-muted mt-4">From: tcs-hr@tcs.com · Today 10:32 AM</div></div><span class="badge badge-rose">Urgent</span></div>
+            <div class="sep"></div>
+            <div class="text-sm mt-16" style="line-height:1.8">Dear Thiyagu,<br><br>We are pleased to inform you that you have been <strong>shortlisted</strong> for the TCS NextStep Interview for the role of <strong>Assistant System Engineer</strong>.<br><br><strong>Interview Date:</strong> June 18, 2026<br><strong>Time:</strong> 9:00 AM onwards<br><strong>Venue:</strong> Anna Auditorium, VIT Vellore<br><br>Please carry: Updated Resume · Photo ID · 2 passport photos · Offer letter (if any)<br><br>Dress Code: Business Formals<br><br>Best regards,<br>TCS Recruitment Team</div>
+            <div class="sep"></div>
+            <div style="display:flex;gap:8px;margin-top:12px">
+              <button class="btn btn-primary">✓ Mark Done</button>
+              <button class="btn btn-outline">⏰ Set Reminder</button>
+              <button class="btn btn-outline">↩ Reply</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ PLACEMENT ═══ -->
+    <div class="page" id="page-placement">
+      <div class="section-title mb-4">Placement Command Center</div>
+      <div class="hero-glass mb-20">
+        <div class="flex-between">
+          <div><div class="text-xs text-muted mb-4">Placement Readiness Score</div><div style="font-size:48px;font-weight:700;color:var(--indigo)">72%</div><div class="text-sm text-muted mt-4">Interview-ready for service companies · Improve DSA for product companies</div></div>
+          <div style="display:flex;flex-direction:column;gap:10px;min-width:200px">
+            <div><div class="flex-between text-xs mb-4"><span class="text-muted">Resume</span><span class="text-emerald fw-600">85%</span></div><div class="prog-wrap"><div class="prog-bar prog-emerald" style="width:85%"></div></div></div>
+            <div><div class="flex-between text-xs mb-4"><span class="text-muted">DSA Skills</span><span class="text-amber fw-600">60%</span></div><div class="prog-wrap"><div class="prog-bar prog-amber" style="width:60%"></div></div></div>
+            <div><div class="flex-between text-xs mb-4"><span class="text-muted">Aptitude</span><span class="text-amber fw-600">71%</span></div><div class="prog-wrap"><div class="prog-bar prog-amber" style="width:71%"></div></div></div>
+          </div>
+        </div>
+      </div>
+      <div class="grid-3 mb-20">
+        <div class="kpi" style="border-left:3px solid var(--emerald)"><div class="kpi-label">CGPA</div><div class="kpi-value text-emerald">8.74</div><div class="mt-4"><span class="badge badge-emerald">✓ Eligible all companies</span></div></div>
+        <div class="kpi" style="border-left:3px solid var(--emerald)"><div class="kpi-label">Backlogs</div><div class="kpi-value text-emerald">0</div><div class="mt-4"><span class="badge badge-emerald">✓ Clean record</span></div></div>
+        <div class="kpi" style="border-left:3px solid var(--emerald)"><div class="kpi-label">10th / 12th</div><div class="kpi-value" style="font-size:18px;color:var(--emerald)">89% / 91%</div><div class="mt-4"><span class="badge badge-emerald">✓ Above cutoff</span></div></div>
+      </div>
+      <div class="kanban mb-20">
+        <div class="kanban-col"><div class="kanban-header"><span class="kanban-title">OPEN</span></div><div class="kanban-card"><div class="fw-600 mb-4">Google</div><div class="text-xs text-muted mb-4">CGPA ≥8.5 ✓ · DSA Required</div><span class="badge badge-indigo">Apply before Jun 20</span></div><div class="kanban-card"><div class="fw-600 mb-4">Amazon</div><div class="text-xs text-muted mb-4">CGPA ≥7.5 ✓</div><span class="badge badge-amber">OA Opens Jun 25</span></div></div>
+        <div class="kanban-col"><div class="kanban-header"><span class="kanban-title">APPLIED</span></div><div class="kanban-card"><div class="fw-600 mb-4">TCS NextStep</div><div class="text-xs text-muted">Applied Jun 1</div></div><div class="kanban-card"><div class="fw-600 mb-4">Infosys InfyTQ</div><div class="text-xs text-muted">Applied Jun 3</div></div></div>
+        <div class="kanban-col"><div class="kanban-header"><span class="kanban-title">SHORTLISTED</span></div><div class="kanban-card" style="border-color:rgba(245,158,11,.3)"><div class="fw-600 mb-4 text-amber">TCS NextStep</div><div class="text-xs mb-8">Interview June 18</div><span class="badge badge-rose">In 5 days</span></div></div>
+        <div class="kanban-col"><div class="kanban-header"><span class="kanban-title">RESULT</span></div><div class="kanban-card" style="border-color:rgba(16,185,129,.3)"><div class="fw-600 mb-4 text-emerald">Wipro</div><div class="text-xs text-muted mb-4">3.5 LPA Package</div><span class="badge badge-emerald">✓ Offer Received</span></div></div>
+      </div>
+      <div class="row">
+        <div style="flex:1"><div class="card"><div class="card-title">Skill Gap Analyzer</div><div id="skill-rows"></div></div></div>
+        <div style="flex:0 0 280px"><div class="card"><div class="card-title">Upcoming Deadlines</div><div class="timeline"><div class="tl-item"><div class="tl-time text-rose">Jun 14 — Tomorrow</div><div class="tl-title">Infosys assessment deadline</div></div><div class="tl-item"><div class="tl-time text-amber">Jun 18</div><div class="tl-title">TCS Interview</div></div><div class="tl-item"><div class="tl-time">Jun 25</div><div class="tl-title">Amazon OA Opens</div></div></div></div></div>
+      </div>
+    </div>
+
+    <!-- ═══ FACULTY ═══ -->
+    <div class="page" id="page-faculty">
+      <div class="section-title mb-20">Faculty Guide Hub</div>
+      <div class="hero-glass mb-20">
+        <div class="flex-center">
+          <div class="avatar" style="width:52px;height:52px;font-size:18px;flex-shrink:0">MK</div>
+          <div style="flex:1">
+            <div class="fw-600" style="font-size:16px">Prof. Meera Krishnan</div>
+            <div class="text-muted text-sm">M.Tech, Ph.D · Cabin SJT 412 · meera.k@vit.ac.in</div>
+            <div class="mt-8"><span class="badge badge-emerald">● Available Mon/Wed 2–4 PM</span></div>
+          </div>
+          <div style="display:flex;gap:8px"><button class="btn btn-primary">+ Schedule Meeting</button><button class="btn btn-outline">✉ Email</button></div>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-55">
+          <div class="card">
+            <div class="card-title">Meeting Timeline</div>
+            <div class="timeline">
+              <div class="tl-item"><div class="tl-time">June 10, 2026</div><div class="tl-title">Semester Review <span class="badge badge-emerald ml-8">Resolved</span></div><div class="tl-sub">Discussed attendance warning in AI4003. Action: attend all remaining classes.</div></div>
+              <div class="tl-item"><div class="tl-time">May 22, 2026</div><div class="tl-title">Project Milestone Review <span class="badge badge-amber ml-8">In Progress</span></div><div class="tl-sub">Phase 2 submitted. Feedback: improve documentation quality.</div></div>
+              <div class="tl-item"><div class="tl-time">May 5, 2026</div><div class="tl-title">CAT-1 Marks Discussion <span class="badge badge-emerald ml-8">Resolved</span></div><div class="tl-sub">Low marks in MAT flagged. Study plan created and shared.</div></div>
+              <div class="tl-item"><div class="tl-time">Apr 18, 2026</div><div class="tl-title">Initial Meeting <span class="badge badge-emerald ml-8">Resolved</span></div><div class="tl-sub">Semester goals set. Performance targets discussed.</div></div>
+            </div>
+          </div>
+        </div>
+        <div class="col-45">
+          <div class="card mb-16">
+            <div class="card-title">Action Items</div>
+            <div class="toggle-row"><div><div class="fw-600 text-sm">Submit revised project report</div><div class="text-xs text-muted">Due Jun 16 · High priority</div></div><span class="badge badge-rose">Pending</span></div>
+            <div class="toggle-row"><div><div class="fw-600 text-sm">Attend AI4003 all remaining classes</div><div class="text-xs text-muted">Ongoing · Critical</div></div><span class="badge badge-rose">Pending</span></div>
+            <div class="toggle-row"><div><div class="fw-600 text-sm text-muted" style="text-decoration:line-through">Complete DA-2</div><div class="text-xs text-muted">Done</div></div><span class="badge badge-emerald">✓ Done</span></div>
+            <div class="toggle-row"><div><div class="fw-600 text-sm text-muted" style="text-decoration:line-through">Submit CAT-2 correction form</div><div class="text-xs text-muted">Done</div></div><span class="badge badge-emerald">✓ Done</span></div>
+          </div>
+          <div class="card">
+            <div class="card-title">Project Tracker</div>
+            <div class="fw-600 text-sm mb-8">ML-based Attendance Prediction System</div>
+            <div style="display:flex;flex-direction:column;gap:6px">
+              <div class="flex-between text-xs mb-4"><span class="text-muted">Overall Progress</span><span class="fw-600">60%</span></div>
+              <div style="display:flex;gap:4px;align-items:center">
+                <div style="flex:1;background:var(--emerald);border-radius:4px;height:6px;min-width:0"></div>
+                <div style="flex:1;background:var(--emerald);border-radius:4px;height:6px;min-width:0"></div>
+                <div style="flex:1;background:var(--indigo);border-radius:4px;height:6px;min-width:0;opacity:.5"></div>
+                <div style="flex:1;background:var(--surface3);border-radius:4px;height:6px;min-width:0"></div>
+                <div style="flex:1;background:var(--surface3);border-radius:4px;height:6px;min-width:0"></div>
+              </div>
+              <div style="display:flex;gap:4px;margin-top:4px">
+                <div class="text-xs text-emerald" style="flex:1">Proposal ✓</div>
+                <div class="text-xs text-emerald" style="flex:1">Lit Review ✓</div>
+                <div class="text-xs text-indigo" style="flex:1">Data Col. →</div>
+                <div class="text-xs text-muted" style="flex:1">Training</div>
+                <div class="text-xs text-muted" style="flex:1">Report</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ EXAM PREP ═══ -->
+    <div class="page" id="page-exam">
+      <div class="flex-between mb-20">
+        <div><div class="section-title">Exam Preparation Center</div><div class="section-sub">FAT begins in 12 days — build your readiness now</div></div>
+        <div style="background:var(--rose-dim);border:1px solid rgba(244,63,94,.2);border-radius:var(--radius);padding:14px 24px;text-align:center"><div class="text-xs text-muted mb-4">FAT Countdown</div><div style="font-size:28px;font-weight:700;color:var(--rose)">12</div><div class="text-xs text-rose">days remaining</div></div>
+      </div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px" id="exam-chips"></div>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:20px" id="readiness-cards"></div>
+      <div class="row">
+        <div style="flex:1"><div class="card"><div class="card-title">12-Day Revision Planner</div><div id="rev-planner"></div></div></div>
+        <div style="flex:0 0 300px"><div class="card"><div class="card-title">Mock Exam Tracker</div><table class="tbl"><thead><tr><th>Subject</th><th>Mocks</th><th>Avg</th><th>Trend</th></tr></thead><tbody><tr><td>CSE3002</td><td>3</td><td class="text-emerald fw-600">74%</td><td class="text-emerald">↑</td></tr><tr><td>MAT2004</td><td>1</td><td class="text-amber fw-600">58%</td><td class="text-muted">→</td></tr><tr><td>AI4003</td><td class="text-rose fw-600">0</td><td class="text-muted">—</td><td class="text-rose">!</td></tr><tr><td>PHY1010</td><td>2</td><td class="text-emerald fw-600">82%</td><td class="text-emerald">↑</td></tr><tr><td>ECE2002</td><td>1</td><td class="text-amber fw-600">65%</td><td class="text-amber">→</td></tr></tbody></table></div></div>
+      </div>
+    </div>
+
+    <!-- ═══ PRODUCTIVITY ═══ -->
+    <div class="page" id="page-productivity">
+      <div class="flex-between mb-20"><div class="section-title">Productivity Dashboard</div><div class="badge badge-amber" style="font-size:13px;padding:6px 14px">🔥 7-day streak</div></div>
+      <div class="grid-3 mb-20">
+        <div class="kpi" style="border-left:3px solid var(--amber)"><div class="kpi-label">Current Streak</div><div class="kpi-value text-amber">7 days</div><div class="kpi-sub">🔥 Keep going!</div></div>
+        <div class="kpi" style="border-left:3px solid var(--indigo)"><div class="kpi-label">Deep Work This Week</div><div class="kpi-value text-indigo">24.5h</div><div class="kpi-trend trend-up">↑ +3.2h vs last week</div></div>
+        <div class="kpi" style="border-left:3px solid var(--emerald)"><div class="kpi-label">Focus Sessions Today</div><div class="kpi-value text-emerald">3</div><div class="kpi-sub">2h 40m total</div></div>
+      </div>
+      <div class="card mb-20">
+        <div class="card-title">Study Activity — Past 52 Weeks</div>
+        <div class="heat-grid" id="heat-grid"></div>
+        <div class="text-xs text-muted mt-12">Most active: Tuesdays · Longest streak: 14 days · Total this semester: 186 hours</div>
+      </div>
+      <div class="row">
+        <div class="col-55">
+          <div class="card">
+            <div class="card-title">Weekly Scorecard</div>
+            <div id="weekly-rows"></div>
+          </div>
+        </div>
+        <div class="col-45">
+          <div class="card">
+            <div class="card-title">Habit Tracker — This Week</div>
+            <div id="habit-grid"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ GOALS ═══ -->
+    <div class="page" id="page-goals">
+      <div class="section-title mb-4">Goals & Achievements</div>
+      <div class="hero-glass mb-20">
+        <div class="flex-between">
+          <div class="flex-center">
+            <div class="avatar" style="width:52px;height:52px;font-size:20px">TK</div>
+            <div><div class="fw-600" style="font-size:18px">Level 14 — Academic Warrior</div><div class="text-sm text-muted">2,340 / 3,000 XP to Level 15</div></div>
+          </div>
+          <div style="display:flex;gap:10px"><span class="badge badge-indigo">🏅 23 Achievements</span><span class="badge badge-amber">🔥 7 Day Streak</span><span class="badge badge-muted">Rank #142</span></div>
+        </div>
+        <div class="mt-12"><div class="prog-wrap" style="height:10px;border-radius:5px"><div class="prog-bar prog-indigo" style="width:78%;height:10px;border-radius:5px"></div></div></div>
+      </div>
+      <div class="row mb-20">
+        <div style="flex:1">
+          <div class="card-title mb-12">Active Goals</div>
+          <div class="card mb-8"><div class="flex-between mb-8"><span class="fw-600">Reach CGPA 9.0</span><span class="badge badge-indigo">97% there</span></div><div class="prog-wrap"><div class="prog-bar prog-indigo" style="width:97%"></div></div><div class="text-xs text-muted mt-4">End of this semester</div></div>
+          <div class="card mb-8"><div class="flex-between mb-8"><span class="fw-600">Zero DA Backlogs</span><span class="badge badge-amber">66%</span></div><div class="prog-wrap"><div class="prog-bar prog-amber" style="width:66%"></div></div><div class="text-xs text-muted mt-4">2 of 3 remaining</div></div>
+          <div class="card"><div class="flex-between mb-8"><span class="fw-600 text-rose">Attend all AI4003 classes</span><span class="badge badge-rose">Critical</span></div><div class="prog-wrap"><div class="prog-bar prog-rose" style="width:57%"></div></div><div class="text-xs text-muted mt-4">8 of 14 remaining attended</div></div>
+        </div>
+        <div style="flex:1">
+          <div class="card-title mb-12">Achievements</div>
+          <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px">
+            <div class="ach-card"><div class="ach-icon">🔥</div><div class="ach-name">7-Day Streak</div><div class="ach-date">Jun 13 · +150 XP</div></div>
+            <div class="ach-card"><div class="ach-icon">📚</div><div class="ach-name">Assignment Master</div><div class="ach-date">Jun 1 · +200 XP</div></div>
+            <div class="ach-card"><div class="ach-icon">⚡</div><div class="ach-name">Early Bird ×5</div><div class="ach-date">May 28 · +100 XP</div></div>
+            <div class="ach-card"><div class="ach-icon">🎯</div><div class="ach-name">CAT-1 Topper</div><div class="ach-date">May 10 · +300 XP</div></div>
+            <div class="ach-card"><div class="ach-icon">💯</div><div class="ach-name">Perfect Month</div><div class="ach-date">Apr 30 · +250 XP</div></div>
+            <div class="ach-card locked"><div class="ach-icon">🏆</div><div class="ach-name">CGPA 9.0 Club</div><div class="ach-date">🔒 Need +0.26</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ AI ASSISTANT ═══ -->
+    <div class="page" id="page-ai">
+      <div class="flex-between mb-16">
+        <div><div class="section-title">AI Academic Assistant</div><div class="section-sub" style="display:flex;align-items:center;gap:6px"><span style="width:6px;height:6px;border-radius:50%;background:var(--emerald);display:inline-block"></span> Powered by AcadOS Intelligence — knows your full profile</div></div>
+      </div>
+      <div class="row" style="height:calc(100vh - 200px)">
+        <div style="flex:0 0 260px">
+          <div class="card" style="height:100%;overflow-y:auto">
+            <div class="card-title">Your Context</div>
+            <div class="ctx-card"><div class="ctx-label">CGPA</div><div class="ctx-value text-emerald">8.74</div></div>
+            <div class="ctx-card"><div class="ctx-label">Attendance Risk</div><div class="ctx-value text-rose">AI4003 — 68%</div></div>
+            <div class="ctx-card"><div class="ctx-label">Next Deadline</div><div class="ctx-value text-rose">SE DA-3 · 18h</div></div>
+            <div class="ctx-card"><div class="ctx-label">Next Exam</div><div class="ctx-value">FAT in 12 days</div></div>
+            <div class="sep"></div>
+            <div class="card-title">Quick Questions</div>
+            <div style="display:flex;flex-direction:column;gap:6px">
+              <div class="chip" onclick="sendQ('What should I study today?')" style="width:100%;justify-content:flex-start">What should I study today?</div>
+              <div class="chip" onclick="sendQ('Can I reach CGPA 9.0?')" style="width:100%;justify-content:flex-start">Can I reach CGPA 9.0?</div>
+              <div class="chip" onclick="sendQ('How many classes can I miss?')" style="width:100%;justify-content:flex-start">How many classes can I miss?</div>
+              <div class="chip" onclick="sendQ('Summarize my weak subjects')" style="width:100%;justify-content:flex-start">Summarize my weak subjects</div>
+            </div>
+          </div>
+        </div>
+        <div style="flex:1;display:flex;flex-direction:column">
+          <div style="flex:1;overflow-y:auto;padding:4px" id="chat-messages">
+            <div class="chat-wrap">
+              <div class="msg"><div class="msg-avatar msg-ai-av">A</div><div class="msg-bubble msg-ai-bubble"><div class="fw-600 mb-8">Welcome back, Thiyagu 👋</div>I've reviewed your full academic profile. Here's your urgent snapshot:<br><br>🔴 <strong>AI4003</strong> attendance at 68% — you must attend the next 6 classes without fail.<br>🟡 <strong>SE DA-3</strong> is due in 18 hours — start now.<br>🟢 <strong>PHY1010 and CSE3002</strong> are in excellent shape.<br><br>Ask me anything — I know your timetable, marks, deadlines, and goals.</div></div>
+              <div class="msg msg-user"><div class="msg-avatar msg-user-av">TK</div><div class="msg-bubble msg-user-bubble">What do I need to score in FAT to reach 9.0 CGPA?</div></div>
+              <div class="msg"><div class="msg-avatar msg-ai-av">A</div><div class="msg-bubble msg-ai-bubble"><div class="fw-600 mb-10">Here's your FAT roadmap to CGPA 9.0</div><table class="tbl" style="background:var(--surface3);border-radius:8px;overflow:hidden"><thead><tr><th>Subject</th><th>Internal /80</th><th>FAT Needed</th><th>Chance</th></tr></thead><tbody><tr><td>CSE3002</td><td>82/100</td><td>42/50</td><td><span class="badge badge-emerald">89%</span></td></tr><tr><td>MAT2004</td><td>71/100</td><td>47/50</td><td><span class="badge badge-amber">61%</span></td></tr><tr><td>AI4003</td><td>66/100</td><td>49/50</td><td><span class="badge badge-rose">34%</span></td></tr><tr><td>PHY1010</td><td>90/100</td><td>38/50</td><td><span class="badge badge-emerald">95%</span></td></tr><tr><td>ECE2002</td><td>78/100</td><td>43/50</td><td><span class="badge badge-emerald">80%</span></td></tr></tbody></table><div class="mt-10 text-sm">Focus ratio: <strong>AI4003 40%</strong> · MAT 35% · Others 25%. CSE3002 and PHY1010 are secure — don't over-invest there.</div></div></div>
+            </div>
+          </div>
+          <div class="chat-input-wrap mt-12">
+            <span style="font-size:16px">✨</span>
+            <input class="chat-input" placeholder="Ask about your grades, attendance, study plan..." id="chat-input" onkeydown="if(event.key==='Enter')sendMsg()">
+            <button class="btn btn-primary" onclick="sendMsg()" style="padding:6px 14px">Send</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ SETTINGS ═══ -->
+    <div class="page" id="page-settings">
+      <div class="section-title mb-20">Settings & Personalization</div>
+      <div class="row">
+        <div style="flex:0 0 200px">
+          <div style="display:flex;flex-direction:column;gap:2px">
+            <div class="nav-item active" style="font-size:13px">Profile</div>
+            <div class="nav-item" style="font-size:13px">Notifications</div>
+            <div class="nav-item" style="font-size:13px">Appearance</div>
+            <div class="nav-item" style="font-size:13px">Data & Sync</div>
+            <div class="nav-item" style="font-size:13px">AI Preferences</div>
+            <div class="nav-item" style="font-size:13px">Privacy</div>
+            <div class="nav-item" style="font-size:13px">About</div>
+          </div>
+        </div>
+        <div style="flex:1">
+          <div class="card mb-16">
+            <div class="flex-between">
+              <div class="flex-center">
+                <div class="avatar" style="width:52px;height:52px;font-size:20px">TK</div>
+                <div><div class="fw-600" style="font-size:16px">Thiyagu</div><div class="text-muted text-sm">22BCT0XXX · B.Tech CSE · Semester 6</div><div class="text-xs text-muted mt-4">thiyaguai2004@gmail.com</div></div>
+              </div>
+              <button class="btn btn-outline">Edit Profile</button>
+            </div>
+          </div>
+          <div class="card mb-16">
+            <div class="card-title">Appearance</div>
+            <div class="toggle-row"><div><div class="fw-600 text-sm">Theme</div><div class="text-xs text-muted">Choose your preferred appearance</div></div><div style="display:flex;gap:8px"><div class="chip active">Dark</div><div class="chip">Light</div><div class="chip">System</div></div></div>
+            <div class="toggle-row"><div><div class="fw-600 text-sm">Accent Color</div><div class="text-xs text-muted">Primary interface color</div></div><div style="display:flex;gap:6px;align-items:center"><div class="color-swatch sel" style="background:#6366F1"></div><div class="color-swatch" style="background:#A855F7"></div><div class="color-swatch" style="background:#10B981"></div><div class="color-swatch" style="background:#F43F5E"></div><div class="color-swatch" style="background:#F59E0B"></div><div class="color-swatch" style="background:#06B6D4"></div><div class="color-swatch" style="background:#3B82F6"></div><div class="color-swatch" style="background:#F97316"></div></div></div>
+            <div class="toggle-row"><div><div class="fw-600 text-sm">Sidebar</div></div><div style="display:flex;gap:8px"><div class="chip active">Default</div><div class="chip">Compact</div><div class="chip">Wide</div></div></div>
+          </div>
+          <div class="card mb-16">
+            <div class="card-title">Notifications</div>
+            <div class="toggle-row"><div><div class="fw-600 text-sm">Attendance warnings</div><div class="text-xs text-muted">Alert when below 80%</div></div><div class="toggle on" onclick="this.classList.toggle('on')"></div></div>
+            <div class="toggle-row"><div><div class="fw-600 text-sm">DA deadlines (24h before)</div></div><div class="toggle on" onclick="this.classList.toggle('on')"></div></div>
+            <div class="toggle-row"><div><div class="fw-600 text-sm">Placement drive alerts</div></div><div class="toggle on" onclick="this.classList.toggle('on')"></div></div>
+            <div class="toggle-row"><div><div class="fw-600 text-sm">Exam countdown</div></div><div class="toggle on" onclick="this.classList.toggle('on')"></div></div>
+            <div class="toggle-row"><div><div class="fw-600 text-sm">Daily AI insights</div></div><div class="toggle on" onclick="this.classList.toggle('on')"></div></div>
+          </div>
+          <div class="card">
+            <div class="card-title">AI Preferences</div>
+            <div class="toggle-row"><div><div class="fw-600 text-sm">Proactive suggestions</div></div><div class="toggle on" onclick="this.classList.toggle('on')"></div></div>
+            <div class="toggle-row"><div><div class="fw-600 text-sm">Personalized study plans</div></div><div class="toggle on" onclick="this.classList.toggle('on')"></div></div>
+            <div class="toggle-row"><div><div class="fw-600 text-sm">Risk alerts</div></div><div class="toggle on" onclick="this.classList.toggle('on')"></div></div>
+            <div class="toggle-row"><div><div class="fw-600 text-sm mb-4">Alert sensitivity</div><div class="text-xs text-muted">Low → High</div></div><input type="range" min="1" max="3" value="2" style="width:120px"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /content -->
+</div><!-- /main -->
+
+<script>
+// ─── NAV ───
+const pageTitles={home:'Home Dashboard',analytics:'Academic Analytics',attendance:'Attendance Intelligence',cgpa:'CGPA Simulator',assignments:'Work Center',mail:'Mail Hub',placement:'Placement Tracker',faculty:'Faculty Guide Hub',exam:'Exam Prep Center',productivity:'Productivity',goals:'Goals & Achievements',ai:'AI Assistant',settings:'Settings'};
+function goto(id,el){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  document.getElementById('page-'+id).classList.add('active');
+  el.classList.add('active');
+  document.getElementById('page-title').textContent=pageTitles[id]||id;
+}
+
+// ─── CHARTS ───
+window.addEventListener('load',()=>{
+  // CGPA Line
+  new Chart(document.getElementById('cgpaChart'),{type:'line',data:{labels:['Sem 1','Sem 2','Sem 3','Sem 4','Sem 5','Sem 6 (proj)'],datasets:[{data:[8.1,8.3,8.45,8.6,8.62,8.91],borderColor:'#6366F1',backgroundColor:'rgba(99,102,241,0.06)',tension:.4,fill:true,pointBackgroundColor:'#6366F1',pointRadius:4,borderWidth:2,borderDash:[0]}]},options:{responsive:true,plugins:{legend:{display:false}},scales:{x:{grid:{color:'rgba(255,255,255,0.04)'},ticks:{color:'#475569',font:{size:11}}},y:{min:7.5,max:10,grid:{color:'rgba(255,255,255,0.04)'},ticks:{color:'#475569',font:{size:11}}}}}});
+  // Radar
+  new Chart(document.getElementById('radarChart'),{type:'radar',data:{labels:['CSE3002','MAT2004','AI4003','ENG2001','PHY1010','ECE2002'],datasets:[{data:[88,72,60,82,92,79],borderColor:'#6366F1',backgroundColor:'rgba(99,102,241,0.15)',pointBackgroundColor:'#6366F1',pointRadius:4,borderWidth:2}]},options:{responsive:true,plugins:{legend:{display:false}},scales:{r:{min:0,max:100,grid:{color:'rgba(255,255,255,0.06)'},angleLines:{color:'rgba(255,255,255,0.06)'},ticks:{display:false},pointLabels:{color:'#94A3B8',font:{size:11}}}}}});
+  // Workload bar
+  new Chart(document.getElementById('workloadChart'),{type:'bar',data:{labels:['Mon','Tue','Wed','Thu','Fri','Sat','Sun'],datasets:[{data:[2,1,3,5,4,2,1],backgroundColor:['#6366F120','#6366F120','#6366F140','#F43F5E80','#F59E0B60','#6366F120','#6366F110'],borderRadius:4}]},options:{responsive:true,plugins:{legend:{display:false}},scales:{x:{grid:{display:false},ticks:{color:'#475569'}},y:{grid:{color:'rgba(255,255,255,0.04)'},ticks:{color:'#475569',stepSize:1}}}}});
+
+  buildAttendance();
+  buildCGPA();
+  buildPlacement();
+  buildExam();
+  buildProductivity();
+  buildHeatmap();
+});
+
+// ─── ATTENDANCE ───
+const subjects=[
+  {name:'CSE3002',full:'Lab Networks',pct:95,status:'safe',miss2:92,attend4:96,safe:8},
+  {name:'MAT2004',full:'Mathematics',pct:76,status:'warn',miss1:73,attend3:79,safe:1},
+  {name:'AI4003',full:'AI & Robotics',pct:68,status:'risk',miss0:'Any miss = danger',attend6:75,safe:0},
+  {name:'ENG2001',full:'English',pct:82,status:'safe',miss2:79,attend3:84,safe:4},
+  {name:'PHY1010',full:'Physics',pct:91,status:'safe',miss4:87,attend2:92,safe:6},
+  {name:'ECE2002',full:'Electronics',pct:79,status:'warn',miss1:76,attend4:82,safe:1}
+];
+function statusColor(s){return s==='safe'?'var(--emerald)':s==='warn'?'var(--amber)':'var(--rose)'}
+function statusLabel(s){return s==='safe'?'● Safe':s==='warn'?'● Warning':'● Critical'}
+function buildAttendance(){
+  const c=document.getElementById('att-grid');
+  c.innerHTML='<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:16px">'+subjects.map(s=>`
+  <div class="card">
+    <div class="flex-between mb-10"><span class="fw-600">${s.name}</span><span class="badge" style="background:${statusColor(s.status)}22;color:${statusColor(s.status)}">${statusLabel(s.status)}</span></div>
+    <div style="font-size:32px;font-weight:700;color:${statusColor(s.status)};font-variant-numeric:tabular-nums">${s.pct}%</div>
+    <div class="prog-wrap mt-8 mb-12"><div class="prog-bar" style="width:${s.pct}%;background:${statusColor(s.status)}"></div></div>
+    <div class="text-xs mt-4" style="color:var(--rose)">Miss 2 → ${s.miss2||s.miss0}%</div>
+    <div class="text-xs mt-4" style="color:var(--emerald)">Attend 4 more → ${s.attend4||s.attend6}%</div>
+  </div>`).join('')+'</div>';
+  document.getElementById('safe-chips').innerHTML=subjects.map(s=>`<span class="badge" style="background:${s.safe===0?'var(--rose-dim)':s.safe<=2?'var(--amber-dim)':'var(--emerald-dim)'};color:${s.safe===0?'var(--rose)':s.safe<=2?'var(--amber)':'var(--emerald)'}">${s.name}: ${s.safe===0?'No safe absences':s.safe+' safe absences'}</span>`).join('');
+}
+
+// ─── CGPA SIMULATOR ───
+const fatReqs=[
+  {subj:'CSE3002',internal:82,forS:42,forA:36,forB:28},
+  {subj:'MAT2004',internal:71,forS:47,forA:42,forB:35},
+  {subj:'AI4003',internal:66,forS:49,forA:46,forB:40},
+  {subj:'PHY1010',internal:90,forS:38,forA:30,forB:22},
+  {subj:'ECE2002',internal:78,forS:43,forA:38,forB:30},
+  {subj:'ENG2001',internal:82,forS:41,forA:35,forB:27}
+];
+function buildCGPA(){
+  document.getElementById('fat-requirements').innerHTML=fatReqs.map(r=>`
+  <div class="flex-between mb-10 text-sm">
+    <span class="text-muted">${r.subj}</span>
+    <span class="badge" style="background:${r.forS>46?'var(--rose-dim)':r.forS>40?'var(--amber-dim)':'var(--emerald-dim)'};color:${r.forS>46?'var(--rose)':r.forS>40?'var(--amber)':'var(--emerald)'}">${r.forS}/50 FAT</span>
+  </div>`).join('');
+  document.getElementById('grade-req-table').innerHTML=fatReqs.map(r=>`<tr><td>${r.subj}</td><td class="text-rose fw-600">${r.forS}/50</td><td class="text-amber fw-600">${r.forA}/50</td><td class="text-emerald fw-600">${r.forB}/50</td></tr>`).join('');
+}
+function updateCGPA(){
+  const t=parseFloat(document.getElementById('target-slider').value);
+  document.getElementById('target-label').textContent=t.toFixed(2);
+  const proj=(8.74+(t-8.74)*0.7).toFixed(2);
+  const delta=(proj-8.74).toFixed(2);
+  const prob=Math.min(95,Math.max(10,Math.round(78-(t-9)*35)));
+  document.getElementById('proj-cgpa').textContent=proj;
+  document.getElementById('real-cgpa').textContent=proj;
+  document.getElementById('proj-delta').textContent=(delta>0?'↑ +':'')+delta+' from current';
+  document.getElementById('prob-bar').style.width=prob+'%';
+  document.getElementById('prob-text').textContent=prob+'% probability of reaching '+t.toFixed(2);
+}
+
+// ─── PLACEMENT ───
+function buildPlacement(){
+  const skills=[{n:'DSA Skills',p:60,c:'amber'},{n:'System Design',p:45,c:'rose'},{n:'Aptitude',p:71,c:'amber'},{n:'Communication',p:80,c:'emerald'},{n:'Resume Quality',p:85,c:'emerald'},{n:'Interview Prep',p:55,c:'amber'}];
+  document.getElementById('skill-rows').innerHTML=skills.map(s=>`<div class="skill-row"><div class="skill-name">${s.n}</div><div class="skill-prog"><div class="prog-wrap"><div class="prog-bar prog-${s.c}" style="width:${s.p}%"></div></div></div><div class="skill-pct" style="color:var(--${s.c})">${s.p}%</div></div>`).join('');
+}
+
+// ─── EXAM ───
+const examSubjects=[
+  {name:'CSE3002',ready:82,topics:'14/18',weak:['Deadlocks','Virtual Mem']},
+  {name:'MAT2004',ready:61,topics:'9/15',weak:['Laplace','Fourier']},
+  {name:'AI4003',ready:45,topics:'7/16',weak:['CNN Backprop','RL']},
+  {name:'ENG2001',ready:78,topics:'11/14',weak:['Tech Report']},
+  {name:'PHY1010',ready:88,topics:'13/14',weak:['Q-Tunneling']},
+  {name:'ECE2002',ready:55,topics:'8/15',weak:['Op-Amp','Filters']}
+];
+function readyColor(p){return p>=80?'var(--emerald)':p>=60?'var(--amber)':'var(--rose)'}
+function buildExam(){
+  document.getElementById('exam-chips').innerHTML=examSubjects.map(s=>`<span class="badge" style="background:${readyColor(s.ready)}22;color:${readyColor(s.ready)}">${s.name} · FAT Jun ${20+examSubjects.indexOf(s)*2}</span>`).join('');
+  document.getElementById('readiness-cards').innerHTML=examSubjects.map(s=>`
+  <div class="readiness-card"><div class="flex-between mb-10"><span class="fw-600">${s.name}</span><span style="font-size:28px;font-weight:700;color:${readyColor(s.ready)}">${s.ready}%</span></div><div class="prog-wrap mb-8"><div class="prog-bar" style="width:${s.ready}%;background:${readyColor(s.ready)}"></div></div><div class="text-xs text-muted mb-8">Topics: ${s.topics} covered</div><div style="display:flex;gap:4px;flex-wrap:wrap">${s.weak.map(w=>`<span class="badge badge-rose" style="font-size:10px">${w}</span>`).join('')}</div><button class="btn btn-outline mt-12" style="width:100%;font-size:12px">Start Revision →</button></div>`).join('');
+  const days=['Mon 16','Tue 17','Wed 18','Thu 19','Fri 20','Sat 21','Sun 22','Mon 23','Tue 24','Wed 25','Thu 26','Fri 27'];
+  const plan=[['MAT','AI'],['CSE','PHY'],['MAT','TCS Interview'],['AI','ECE'],['CSE FAT'],['MAT','PHY'],['AI4003 all day'],['ECE','ENG'],['PHY','CSE'],['MAT FAT'],['AI FAT'],['ECE FAT']];
+  document.getElementById('rev-planner').innerHTML='<div style="display:grid;grid-template-columns:repeat(6,1fr);gap:6px">'+days.map((d,i)=>`<div style="background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:8px;${i===0?'border-color:var(--indigo)':''}"><div class="text-xs text-muted mb-6">${d}</div>${plan[i].map(p=>`<div class="badge badge-indigo" style="font-size:10px;margin-top:3px;display:block">${p}</div>`).join('')}</div>`).join('')+'</div>';
+}
+
+// ─── HEATMAP ───
+function buildHeatmap(){
+  const g=document.getElementById('heat-grid');
+  const levels=[0,0,1,1,2,3,4,3,2,1,2,3,4,4,3,2,1,2,3,4,4,3,3,2,1,0,1,2,3,4,3,2,1,0,1,2,3,2,1,0,1,2,3,4,4,3,2,1,2,3,4,3,2,1];
+  for(let w=0;w<53;w++){for(let d=0;d<7;d++){const v=Math.floor(Math.random()*5);const el=document.createElement('div');el.className='heat-cell heat-'+Math.min(v,4);g.appendChild(el);}}
+}
+
+// ─── PRODUCTIVITY ───
+function buildProductivity(){
+  const days=['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+  const hrs=[4.5,6,5,7,5.5,3,1.5];
+  const emojis=['😴','🔥','😊','🔥','😊','😊','😴'];
+  document.getElementById('weekly-rows').innerHTML=days.map((d,i)=>`
+  <div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border);${i===5?'border-left:3px solid var(--indigo);padding-left:8px;background:var(--indigo-dim);border-radius:4px':''}">
+    <div class="text-sm text-muted" style="min-width:30px">${d}</div>
+    <div style="flex:1"><div class="prog-wrap"><div class="prog-bar prog-indigo" style="width:${hrs[i]/8*100}%"></div></div></div>
+    <div class="text-sm fw-600" style="min-width:36px">${hrs[i]}h</div>
+    <div style="font-size:16px">${emojis[i]}</div>
+  </div>`).join('');
+  const habits=['Morning review','All classes','DA progress','Revision','No phone 10PM','8h sleep','Exercise'];
+  const week=[[1,1,0,1,1,1,1],[1,1,1,0,1,1,0],[1,0,1,1,1,1,1],[1,1,1,1,0,1,0],[1,1,1,1,1,0,1],[1,1,1,0,1,1,1],[0,1,0,1,1,0,1]];
+  document.getElementById('habit-grid').innerHTML='<div style="display:grid;grid-template-columns:1fr repeat(7,28px);gap:4px;align-items:center">'+
+  ['','M','T','W','T','F','S','S'].map(h=>`<div class="text-xs text-muted" style="text-align:center">${h}</div>`).join('')+
+  habits.map((h,hi)=>`<div class="text-xs text-muted">${h}</div>`+days.map((_,di)=>`<div style="width:20px;height:20px;border-radius:50%;background:${week[hi][di]?'var(--emerald)':'var(--rose)'};opacity:${week[hi][di]?1:.3};margin:0 auto"></div>`).join('')).join('')+'</div>';
+}
+
+// ─── CHAT ───
+const aiResponses={
+  'What should I study today?':'Based on your profile:\n\n🔴 **Priority 1 — SE DA-3** (due in 18h!) — Submit first.\n🟡 **Priority 2 — AI4003** (3 hours revision, focus on CNN Backprop)\n🟢 **Priority 3 — MAT2004** (1 hour Laplace practice)\n\nEstimated: 6 hours total. Start with the DA immediately.',
+  'Can I reach CGPA 9.0?':'Yes, with a 78% probability! You need to score an average of 43/50 across all your FAT exams. Your PHY1010 and CSE3002 are already secured. The key risk is AI4003 — you need 49/50 FAT which is very tough. Even with a B in AI4003, reaching 8.95+ is very achievable.',
+  'How many classes can I miss?':'Based on your current attendance:\n\n✅ **CSE3002**: 8 more safe absences\n✅ **PHY1010**: 6 safe absences\n⚠️ **MAT2004**: Only 1 more safe absence\n⚠️ **ECE2002**: Only 1 more safe absence\n🚨 **AI4003**: ZERO — any absence puts you in condonation territory',
+  'Summarize my weak subjects':'Your two weakest areas:\n\n**AI4003** — Only 68% attendance + low CAT scores. High risk of grade drop.\n**MAT2004** — CAT-1 and CAT-2 were below average (29 and 33/50). Need strong FAT to compensate.\n\nRecommendation: Dedicate 60% of your remaining study time to these two subjects.'
+};
+function sendQ(q){document.getElementById('chat-input').value=q;sendMsg();}
+function sendMsg(){
+  const inp=document.getElementById('chat-input');
+  const q=inp.value.trim();if(!q)return;
+  const wrap=document.getElementById('chat-messages').querySelector('.chat-wrap');
+  // user
+  const um=document.createElement('div');um.className='msg msg-user';um.innerHTML=`<div class="msg-avatar msg-user-av">TK</div><div class="msg-bubble msg-user-bubble">${q}</div>`;wrap.appendChild(um);
+  inp.value='';
+  // ai
+  setTimeout(()=>{
+    const r=aiResponses[q]||"Great question! Based on your academic data, I recommend focusing on your weakest subjects first. Attend all remaining AI4003 classes, submit SE DA-3 immediately, and start MAT2004 revision. Your PHY1010 and CSE3002 are in excellent shape — don't over-invest there.";
+    const am=document.createElement('div');am.className='msg';am.innerHTML=`<div class="msg-avatar msg-ai-av">A</div><div class="msg-bubble msg-ai-bubble">${r.replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>').replace(/\n/g,'<br>')}</div>`;
+    wrap.appendChild(am);
+    wrap.scrollTop=wrap.scrollHeight;
+  },600);
+  wrap.scrollTop=wrap.scrollHeight;
+}
+
+function showMail(i){} // placeholder
+</script>
+</body>
+</html>
